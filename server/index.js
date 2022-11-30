@@ -29,14 +29,17 @@ app.get("/balance/:address", (req, res) => {
 app.post("/send", async (req, res) => {
   const { sender, recipient, amount, signature, recoveryBit } = req.body;
 
-  const hashedMessage = hashMessage(amount);
+  const message = JSON.stringify({
+    amount: amount,
+    sender,
+    recipient,
+  });
+  const hashedMessage = hashMessage(message);
+
   const recoverd = secp.recoverPublicKey(hashedMessage, signature, recoveryBit);
 
   const add = getAddress(recoverd);
-  console.log({ res: toHex(add), sender });
-  // const isValid = secp.verify(signature, hashedMessage, recoverd);
 
-  // console.log({ isValid, a: toHex(hexToBytes(sender)), b: toHex(recoverd) });
   if (toHex(add) != sender) {
     res.status(400).send({ message: "You are not a guy!" });
     return;
@@ -78,6 +81,6 @@ function getAddress(publicKey) {
   const firstByte = publicKey.slice(1);
   const cak = keccak256(firstByte);
   const address = cak.slice(-20);
-  console.log(address);
+  console.log({ address });
   return address;
 }

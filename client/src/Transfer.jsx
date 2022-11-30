@@ -11,7 +11,14 @@ function Transfer({ address, setBalance }) {
 
   async function transfer(evt) {
     evt.preventDefault();
-    const [signature, recoveryBit] = await signMessage(sendAmount.toString());
+
+    const message = JSON.stringify({
+      amount: parseInt(sendAmount),
+      sender: address,
+      recipient,
+    });
+
+    const [signature, recoveryBit] = await signMessage(message);
 
     try {
       const {
